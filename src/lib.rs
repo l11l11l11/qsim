@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 //! used in this crate.
 //!
 //! The examples directory in this repository contains full usage examples
-//! of the desim crate as a simulation framework.
+//! of the qsim crate as a simulation framework.
 //!
 //! # Simulation
 //! A simulation is performed scheduling one or more processes that
@@ -91,7 +91,7 @@ use resources::Resource;
 ///
 /// ```
 ///
-/// use desim::{Effect, SimState, Simulation};
+/// use qsim::{Effect, SimState, Simulation};
 /// use genawaiter::{rc::gen, yield_};
 /// // enum used as part of state logged during simulation
 /// #[derive(Clone)]

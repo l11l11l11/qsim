@@ -13,18 +13,18 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 
-//! The desim prelude.
+//! The qsim prelude.
 //!
 //! The prelude is a list of things that you can import into your program with a single `use`.
-//! It includes types which are used in almost every desim simulation program.
+//! It includes types which are used in almost every qsim simulation program.
 //!
 //! To use the prelude in your simulation simply add in your source
 //! ```rust
-//! use desim::prelude::*;
+//! use qsim::prelude::*;
 //! ```
 //!
 //! You can find this used in some example programs in the `examples`
-//! directory of the desim repository.
+//! directory of the qsim repository.
 
 pub use crate::Effect;
 pub use crate::EndCondition;

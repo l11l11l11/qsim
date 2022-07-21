@@ -1,15 +1,15 @@
 [package]
-name = "desim"
-version = "0.3.0"
 authors = ["Gianmarco Garrisi <gianmarcogarrisi@tutanota.com>"]
-description = "A discrete-time events simulation framework inspired by Simpy"
-repository = "https://github.com/garro95/desim"
-readme = "README.md"
-keywords =  ["simulation", "framework", "time", "discrete", "events"]
 categories = ["simulation", "science"]
+description = "A discrete-time events simulation framework inspired by Simpy"
+keywords = ["simulation", "framework", "time", "discrete", "events"]
 license = "GPL-3.0"
+name = "qsim"
+readme = "README.md"
+repository = "https://github.com/shenjiangqiu/qsim"
+version = "0.0.1"
 
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 genawaiter = "0.99.1"
