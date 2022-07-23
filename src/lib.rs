@@ -71,7 +71,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 //! For more information about the `Resource` trait and the `SimpleResource` implementation,
 //! see the [`resources`](crate::resources) module.
 
-use genawaiter::{stack::Gen, yield_, Coroutine};
+use genawaiter::Coroutine;
 use std::cmp::{Ordering, Reverse};
 use std::collections::BinaryHeap;
 use std::pin::Pin;

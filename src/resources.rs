@@ -1,6 +1,6 @@
 /* Copyright © 2018 Gianmarco Garrisi
 
-This program is free software: you can redistribute it and/or modify
+This program is free software: you can redistribute it a&nd/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or
 (at your option) any later version.
@@ -109,7 +109,6 @@ pub trait CopyDefault {
 }
 
 /// a class that implement waiting on both request and release
-#[derive(Debug)]
 pub struct Store<T>
 where
     T: Debug,
@@ -119,6 +118,19 @@ where
     recv_waiting_queue: VecDeque<Event<T>>,
     value_queue: VecDeque<Event<T>>,
 }
+impl<T> Debug for Store<T>
+where
+    T: Debug,
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("Store")
+            .field("send_waiting_queue", &self.send_waiting_queue.len())
+            .field("recv_waiting_queue", &self.recv_waiting_queue.len())
+            .field("value_queue", &self.value_queue.len())
+            .finish()
+    }
+}
+
 impl<T> Resource<T> for Store<T>
 where
     T: CopyDefault + Debug,
@@ -190,6 +202,15 @@ where
                 value.set_time(current_time);
                 vec![value]
             }
+        } else if let Some(waiting) = self.send_waiting_queue.pop_front() {
+            // some one is waiting to push
+            let waiting_id = waiting.process();
+
+            // first activate the push event
+            let pop_event = Event::new(current_time, waiting_id, event.state);
+            // then activate the pop event
+            let push_event = Event::new(current_time, current_id, waiting.state);
+            vec![pop_event, push_event]
         } else {
             // in this case, no value in queue, and no waiting process, put this request to recv_waiting list! and return nothing
             self.recv_waiting_queue.push_back(event);
@@ -209,4 +230,10 @@ where
             value_queue: VecDeque::new(),
         }
     }
+}
+
+#[cfg(test)]
+mod test {
+    #[test]
+    fn test_store() {}
 }
