@@ -72,12 +72,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 //! see the [`resources`](crate::resources) module.
 
 use genawaiter::Coroutine;
+use log::{error, info};
 use std::cmp::{Ordering, Reverse};
 use std::collections::BinaryHeap;
+use std::fmt::Debug;
 use std::pin::Pin;
 pub mod prelude;
 pub mod resources;
-use resources::Resource;
+use resources::{CopyDefault, Resource};
+
+use crate::resources::Store;
 
 /// Data structures implementing this trait can be yielded from the generator
 /// associated with a `Process`. This allows attaching application-specific data
@@ -160,6 +164,11 @@ pub enum Effect {
     /// Logs the event and resume the process immediately.
     Trace,
 }
+impl CopyDefault for Effect {
+    fn copy_default(&self) -> Self {
+        Effect::Wait
+    }
+}
 
 /// Identifies a process. Can be used to resume it from another one and to schedule it.
 pub type ProcessId = usize;
@@ -222,7 +231,7 @@ pub enum EndCondition {
     NSteps(usize),
 }
 
-impl<T: 'static + SimState + Clone> Simulation<T> {
+impl<T: 'static + SimState + Clone + Debug + CopyDefault> Simulation<T> {
     /// Create a new `Simulation` environment.
     pub fn new() -> Simulation<T> {
         Simulation::<T>::default()
@@ -233,17 +242,25 @@ impl<T: 'static + SimState + Clone> Simulation<T> {
         self.time
     }
     /// print out the resources
-    pub fn print_resources(&self) -> String {
-        let mut output = String::new();
+    /// for those have pending sending requests, print error!
+    pub fn print_resources(&self) {
         for (i, (name, r)) in self
             .resource_names
             .iter()
             .zip(self.resources.iter())
             .enumerate()
         {
-            output += &format!("{i},{name}:{r:?}\n");
+            if let Some(store) = r.downcast_ref::<Store<T>>() {
+                if let n @ 1.. = store.get_sending_queue_len() {
+                    error!("{i}. {} has pending sending requests:{}", name, n);
+                    error!("{:?}", store.get_sending_taks()[0]);
+                } else {
+                    info!("{i}. {} has no pending sending requests:{}", name, 0);
+                }
+            } else {
+                info!("{i}. {} is not a store", name);
+            }
         }
-        output
     }
     /// Returns the log of processed events
     pub fn processed_events(&self) -> &[(Event<T>, T)] {

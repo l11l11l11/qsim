@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>. */
 //!
 //! The `Resource` trait allow the implementation of custom resource types.
 //! A `SimpleResource` struct provides a basic but useful implementation of the `Resource` trait.
+use downcast_rs::{impl_downcast, Downcast};
+
 use crate::Event;
 use std::{collections::VecDeque, fmt::Debug};
 
@@ -42,7 +44,7 @@ where
 }
 
 /// The resource trait implemented by every Resource of the simulation
-pub trait Resource<T>: Debug {
+pub trait Resource<T>: Debug + Downcast {
     /// This method is called whenever a resource is requested by a process in the simulation.
     ///
     /// It receives an event with current time, the `ProcessId` of the process requesting the
@@ -59,10 +61,11 @@ pub trait Resource<T>: Debug {
     /// If an optional `Event` is returned, it is scheduled to be simulated.
     fn release_and_schedule_next(&mut self, event: Event<T>) -> Vec<Event<T>>;
 }
+impl_downcast!(Resource<T>);
 
 impl<T> Resource<T> for SimpleResource<T>
 where
-    T: Debug,
+    T: Debug + 'static,
 {
     fn allocate_or_enqueue(&mut self, event: Event<T>) -> Vec<Event<T>> {
         if self.available > 0 {
@@ -133,7 +136,7 @@ where
 
 impl<T> Resource<T> for Store<T>
 where
-    T: CopyDefault + Debug,
+    T: CopyDefault + Debug + 'static,
 {
     fn allocate_or_enqueue(&mut self, event: Event<T>) -> Vec<Event<T>> {
         let current_time = event.time();
@@ -229,6 +232,12 @@ where
             recv_waiting_queue: VecDeque::new(),
             value_queue: VecDeque::new(),
         }
+    }
+    pub fn get_sending_queue_len(&self) -> usize {
+        self.send_waiting_queue.len()
+    }
+    pub fn get_sending_taks(&self) -> &VecDeque<Event<T>> {
+        &self.send_waiting_queue
     }
 }
 
